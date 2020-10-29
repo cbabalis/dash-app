@@ -1,28 +1,48 @@
 import dash
+from dash.dependencies import Input, Output
+import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
+import pandas as pd
 
+#df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv')
+df = pd.read_csv('/home/cbabalis/workspace/tests/pandas_tests/good_port_throughput.csv')
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__)
 
 app.layout = html.Div([
-    dcc.Input(id='input-1-state', type='text', value='Montreal'),
-    dcc.Input(id='input-2-state', type='text', value='Canada'),
-    html.Button(id='submit-button-state', n_clicks=0, children='Submit'),
-    html.Div(id='output-state')
+    dash_table.DataTable(
+        id='datatable-interactivity',
+        columns=[
+            {"name": i, "id": i, "deletable": True, "selectable": True} for i in df.columns
+        ],
+        data=df.to_dict('records'),
+        editable=True,
+        filter_action="native",
+        sort_action="native",
+        sort_mode="multi",
+        column_selectable="single",
+        row_selectable="multi",
+        row_deletable=True,
+        selected_columns=[],
+        selected_rows=[],
+        page_action="native",
+        page_current= 0,
+        page_size= 10,
+    ),
+    html.Div(id='datatable-interactivity-container')
 ])
 
+@app.callback(
+    Output('datatable-interactivity', 'style_data_conditional'),
+    [Input('datatable-interactivity', 'selected_columns')]
+)
+def update_styles(selected_columns):
+    return [{
+        'if': { 'column_id': i },
+        'background_color': '#D2F3FF'
+    } for i in selected_columns]
 
-@app.callback(Output('output-state', 'children'),
-              [Input('submit-button-state', 'n_clicks')],
-              [State('input-1-state', 'value'),
-               State('input-1-state', 'value')])
-def update_output(n_clicks, input1, input2):
-    return u'''
-        The Button has been pressed {} times,
-        Input 1 is "{}",
-        and Input 2 is "{}"
-        '''.format(n_clicks, input1, input2)
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
