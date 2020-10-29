@@ -1,12 +1,12 @@
 import unittest
-from dash_app import dash_app
+from dash_app import xls_manipulation
 
 
-class TestDashApp(unittest.TestCase):
+class TestXlsManipulation(unittest.TestCase):
     
     def test_read_xlsx(self):
         xlsx_file = '../PROJECT_MATERIAL/nikos_data.xlsx'
-        xlsx_contents = dash_app.read_xlsx(xlsx_file)
+        xlsx_contents = xls_manipulation.read_xlsx(xlsx_file)
         assert isinstance(xlsx_contents, dict)
 
 
