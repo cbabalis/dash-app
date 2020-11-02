@@ -1,3 +1,5 @@
+""" Filters. https://dash.plotly.com/datatable/filtering"""
+
 import dash
 from dash.dependencies import Input, Output
 import dash_table
@@ -15,6 +17,7 @@ app = dash.Dash(__name__)
 
 app.layout = html.Div([
 
+    html.H1('1. Goods Port Throughput'),
     dcc.RadioItems(
         id='filter-query-read-write',
         options=[
@@ -52,8 +55,8 @@ app.layout = html.Div([
         selected_columns=[],
         selected_rows=[],
         page_current= 0,
-    )
-    ,
+    ),
+    
     html.Div(id='datatable-interactivity-container'),
     html.Hr(),
     html.Div(id='datatable-query-structure', style={'whitespace': 'pre'})
