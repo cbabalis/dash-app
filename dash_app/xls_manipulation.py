@@ -58,10 +58,21 @@ def build_single_json_from_multiple_sheets(keys, dash_table, csv_table):
         dash_table[key] = curr_table
 
 
+def convert_excel_to_csvs(xls_file_path, csv_folder_path):
+    """ Method to convert an xls file to csv file(s).
+    Each sheet of xls is converted to a single csv file.
+    """
+    dfs = read_xlsx(xls_file_path)
+    for df in dfs:
+        filename = "{}/{}.csv".format(csv_folder_path, df)
+        dfs[df].to_csv(filename, index=None, header=True)
+
+
 def main():
     xlsx_tabs = read_xlsx(sys.argv[1])
     dt = get_table_unique_params(xlsx_tabs)
     pdb.set_trace()
+    convert_excel_to_csvs(sys.argv[1], 'csv_files')
 
 
 if __name__ == '__main__':
