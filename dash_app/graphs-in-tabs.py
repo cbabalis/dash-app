@@ -15,9 +15,38 @@ import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 import dash_table
 import pandas as pd
+import json
+from os import walk
+import pdb
+
+
+def get_all_filenames(filepath):
+    """ method to get all filenames from a folder."""
+    f = []
+    for (dirpath, dirnames, filenames) in walk(filepath):
+        f.extend(filenames)
+        return f
+
+
+def get_tabs(filepath):
+    sheet_names = get_all_filenames(filepath)
+    data_tabs = []
+    for sn in sheet_names:
+        data_tabs.append(dbc.Tab(label=sn, tab_id=sn))
+    dash_data_tabs = dbc.Tabs(
+            data_tabs,
+            id="tabs",
+            active_tab="1._Goods_Port_throughput.csv" # sheet_names[0],
+        )
+    #pdb.set_trace()
+    return data_tabs
 
 
 df = pd.read_csv('csv_files/1._Goods_Port_throughput.csv')
+
+filepath = '/home/cbabalis/Nextcloud/GTD/PhD/PROJECTS/04_students/10_NIKOS_TSAKALAS/dash-app/dash_app/csv_files'
+dash_data_tabs = get_tabs(filepath)
+sheet_names = get_all_filenames(filepath)
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -26,25 +55,25 @@ app.config.suppress_callback_exceptions = True
 app.layout = dbc.Container(
     [
         dcc.Store(id="store"),
-        html.H1("Dynamically rendered tab content"),
+        html.H1("Προβολή Δεδομένων με χρήση dash"),
         html.Hr(),
         dbc.Button(
-            "Regenerate graphs",
+            "Επαναφόρτωση Δεδομένων",
             color="primary",
             block=True,
             id="button",
             className="mb-3",
         ),
         dbc.Tabs(
-            [
-                dbc.Tab(label="Scatter", tab_id="scatter"),
-                dbc.Tab(label="Histograms", tab_id="histogram"),
-                dbc.Tab(label="Goods Port Throughput", tab_id="gpt"),
-            ],
+            #[
+            #    dbc.Tab(label="Scatter", tab_id="scatter"),
+            #    dbc.Tab(label="Histograms", tab_id="histogram"),
+            #    dbc.Tab(label="Goods Port Throughput", tab_id="gpt"),
+            #    ],
+            dash_data_tabs,
             id="tabs",
-            active_tab="scatter",
+            active_tab= "1._Goods_Port_throughput.csv" #dash_data_tabs[0].label #"scatter",
         ),
-        html.Div(id="tab-content", className="p-4"),
     ]
 )
 
@@ -59,6 +88,7 @@ def render_tab_content(active_tab, data):
     stored graphs, and renders the tab content depending on what the value of
     'active_tab' is.
     """
+    pdb.set_trace()
     if active_tab and data is not None:
         if active_tab == "scatter":
             return dcc.Graph(figure=data["scatter"])
@@ -69,7 +99,8 @@ def render_tab_content(active_tab, data):
                     dbc.Col(dcc.Graph(figure=data["hist_2"]), width=6),
                 ]
             )
-        elif active_tab == "gpt":
+        elif active_tab == "1._Goods_Port_throughput.csv":
+            print("ok found!")
             return filter_query_read_write()
     return "No tab selected"
 

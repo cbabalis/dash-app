@@ -7,11 +7,34 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 import json
+import xls_manipulation
+import pdb
+
 
 df = pd.read_csv('csv_files/1._Goods_Port_throughput.csv')
 
 #df['id'] = df['country']
 #df.set_index('id', inplace=True, drop=False)
+
+def get_dropdown_menu():
+    dropdown_list = []
+    already_met_list = []
+    curr_table = {}
+    for (column_name, column_data) in df.iteritems():
+        curr_table[column_name] = list(column_data.unique())
+    for key in curr_table:
+        for val in curr_table[key]:
+            if val not in already_met_list:
+                dropdown_list.append(
+                    {'label': val,
+                    'value': val},
+                )
+                already_met_list.append(val)
+            else:
+                print(val)
+    return dropdown_list
+
+dl_list = get_dropdown_menu()
 
 app = dash.Dash(__name__)
 
@@ -33,10 +56,10 @@ app.layout = html.Div([
     html.Label('Dropdown menu'),
     dcc.Dropdown(
         id='Dropdown',
-        options=[
-            {'label': 'Cargo', 'value': 'Total'},
-            {'label': 'Bulk', 'value': 'Dry Bulk'},
-        ],
+        options = dl_list, #[
+        #    {'label': 'Cargo', 'value': 'Total'},
+        #    {'label': 'Bulk', 'value': 'Dry Bulk'},
+        #],
         multi=True,
     ),
     

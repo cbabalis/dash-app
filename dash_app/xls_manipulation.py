@@ -26,6 +26,7 @@ def read_xlsx(filename):
             for sheet_name in xl_file.sheet_names}
     return dfs
 
+
 def get_table_unique_params(csv_table):
     """ Method to get the unique parameters (columns) of a table.
     TODO write doc here.
@@ -66,6 +67,21 @@ def convert_excel_to_csvs(xls_file_path, csv_folder_path):
     for df in dfs:
         filename = "{}/{}.csv".format(csv_folder_path, df)
         dfs[df].to_csv(filename, index=None, header=True)
+
+
+def get_dash_dropdown_list_from_dataframe(unique_values_dict):
+    """ Method to get a dictionary ready to be used to a dropdown menu
+    to dash dropdown.
+
+    Args:
+        unique_values_dict (dict): A dictionary of unique values for columns.
+    """
+    dropdown_list = []
+    # return an object of the form:
+    # {label: 'key', 'value':[list of values]}
+    for k in unique_values_dict:
+        dropdown_list.append({'label': k, 'value': unique_values_dict[k]})
+    return dropdown_list
 
 
 def main():
