@@ -15,7 +15,6 @@ df = pd.read_csv('csv_files/1._Goods_Port_throughput.csv')
 
 app = dash.Dash(__name__)
 
-app.config.suppress_callback_exceptions = True
 
 app.layout = html.Div([
 
@@ -29,6 +28,18 @@ app.layout = html.Div([
         value='read'
     ),
 
+    html.Br(),
+    
+    html.Label('Dropdown menu'),
+    dcc.Dropdown(
+        id='Dropdown',
+        options=[
+            {'label': 'Cargo', 'value': 'Total'},
+            {'label': 'Bulk', 'value': 'Dry Bulk'},
+        ],
+        multi=True,
+    ),
+    
     html.Br(),
 
     dcc.Input(id='filter-query-input', placeholder='Enter filter query'),
