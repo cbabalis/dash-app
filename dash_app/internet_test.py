@@ -32,6 +32,7 @@
 # if __name__ == '__main__':
 #     app.run_server(debug=True)
 
+# https://community.plotly.com/t/show-and-tell-dashtable-filtering-by-columns-with-external-controls-sliders-dropdowns-inputs/22523/4
 import random
 import dash
 import dash_core_components as dcc

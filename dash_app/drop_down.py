@@ -1,7 +1,11 @@
 import dash
 import dash_table
 import dash_html_components as html
+import dash_core_components as dcc
 import pandas as pd
+import pdb
+
+
 
 df = pd.read_csv('csv_files/Sheet1.csv')
 
@@ -9,6 +13,13 @@ app = dash.Dash(__name__)
 
 app.layout = html.Div([
     html.H1('Συλλογή Ερευνητικών Εργασιών'),
+    html.Div(id='container_col_select',
+                 children=dcc.Dropdown(id='col_select',
+                                       options=[{
+                                           'label': c.replace('_', ' ').title(),
+                                           'value': c}
+                                           for c in df.columns]),
+                 style={'display': 'inline-block', 'width': '16%', 'margin-left': '7%'}),
     dash_table.DataTable(
         style_data={
             'whiteSpace': 'normal',
@@ -24,8 +35,6 @@ app.layout = html.Div([
                 overflow-y: hidden;
             '''
         }],
-        #fixed_rows={'headers': True, 'data': 0},
-        #fixed_columns={'headers': True,'data': 1},#'headers': True,
         tooltip_data=[
             {
                 column: {'value': str(value), 'type': 'markdown'}
@@ -74,6 +83,46 @@ app.layout = html.Div([
         page_current= 0,
     )
 ])
+
+def show_callbacks(app):
+    
+    def format_regs(registrations, padding=10):
+        # TODO: -- switch to single line printing if > 79 chars                                                                                                                                
+        vals = sorted("{}.{}".format(i['id'], i['property'])
+                      for i in registrations)
+        return ", ".join(vals)
+
+    output_list = []
+
+    for callback_id, callback in app.callback_map.items():
+        wrapped_func = callback['callback'].__wrapped__
+        inputs = callback['inputs']
+        states = callback['state']
+        events = callback['events']
+
+        str_values = {
+            'callback': wrapped_func.__name__,
+            'output': callback_id,
+            'filename': os.path.split(wrapped_func.__code__.co_filename)[-1],
+            'lineno': wrapped_func.__code__.co_firstlineno,
+            'num_inputs': len(inputs),
+            'num_states': len(states),
+            'num_events': len(events),
+            'inputs': format_regs(inputs),
+            'states': format_regs(states),
+            'events': format_regs(events)
+        }
+
+        output = """                                                                                                                                                                           
+        callback      {callback} @ {filename}:{lineno}                                                                                                                                         
+        Output        {output}                                                                                                                                                                 
+        Inputs  {num_inputs:>4}  {inputs}                                                                                                                                                      
+        States  {num_states:>4}  {states}                                                                                                                                                      
+        Events  {num_events:>4}  {events}                                                                                                                                                      
+        """.format(**str_values)
+
+        output_list.append(output)
+    return "\n".join(output_list)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
