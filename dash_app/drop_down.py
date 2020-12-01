@@ -6,6 +6,27 @@ import pandas as pd
 import pdb
 
 
+def get_list_options(df):
+    """ Method to get all unique values of the dataframe."""
+    # get columns' names (like keys)
+    columns = [c for c in df.columns]
+    # based on columns' names create a dictionary of
+    # <column name: unique_values_list> pairs.
+    all_col_value_list = []
+    for c in columns:
+        all_col_value_list = get_option(df, c)
+    #     all_col_value_list.append([{'label':c_val, 'value':c_val}
+    #                                for c_val in df[c].unique()])
+    return all_col_value_list
+
+
+def get_option(df, col_name):
+    options_list = []
+    options_list.append([{'label':c_val, 'value':c_val}
+                            for c_val in df[col_name].unique()])
+    return options_list
+
+
 
 df = pd.read_csv('csv_files/Sheet1.csv')
 
@@ -20,6 +41,9 @@ app.layout = html.Div([
                                            'value': c}
                                            for c in df.columns]),
                  style={'display': 'inline-block', 'width': '16%', 'margin-left': '7%'}),
+    html.Div(id='dropdown_selection',
+                children=dcc.Dropdown(id='cat_filter', multi=True,
+                                       options=get_list_options(df))),
     dash_table.DataTable(
         style_data={
             'whiteSpace': 'normal',
@@ -83,6 +107,7 @@ app.layout = html.Div([
         page_current= 0,
     )
 ])
+
 
 def show_callbacks(app):
     
