@@ -2,7 +2,9 @@ import dash
 import dash_table
 import dash_html_components as html
 import dash_core_components as dcc
+from dash.dependencies import Input, Output
 import pandas as pd
+from dash.exceptions import PreventUpdate
 import pdb
 
 
@@ -29,6 +31,17 @@ def get_option(df, col_name):
 
 
 df = pd.read_csv('csv_files/Sheet1.csv')
+
+
+def get_str_dtype(df, col):
+    """Return dtype of col in df"""
+    dtypes = [c for c in df.columns]
+    for d in dtypes:
+        try:
+            if d in str(df.dtypes.loc[col]).lower():
+                return d
+        except KeyError:
+            return None
 
 app = dash.Dash(__name__)
 
@@ -108,46 +121,35 @@ app.layout = html.Div([
     )
 ])
 
+@app.callback([Output(x, 'style')
+               for x in ['dropdown_selection']],
+              [Input('col_select', 'value')])
+def display_relevant_filter_container(col):
+    if col is None:
+        return [{'display': 'none'} for i in range(5)]
+    dtypes = [c for c in df.columns]
+    result = [{'display': 'none'} if get_str_dtype(df, col) not in d
+              else {'display': 'inline-block',
+                    'margin-left': '7%',
+                    'width': '400px'} for d in dtypes]
+    return result
 
-def show_callbacks(app):
-    
-    def format_regs(registrations, padding=10):
-        # TODO: -- switch to single line printing if > 79 chars                                                                                                                                
-        vals = sorted("{}.{}".format(i['id'], i['property'])
-                      for i in registrations)
-        return ", ".join(vals)
 
-    output_list = []
+@app.callback(Output('table', 'data'),
+              [Input('col_select', 'value'),
+               Input('cat_filter', 'value'),
+               #Input('bool_filter', 'value'),
+            ])
+def filter_table(col, categories):
+                 #bool_filter, start_date, end_date):
+    if all([param is None for param in [col, categories]]):
+        raise PreventUpdate
+    if  categories and (get_str_dtype(df, col)): # == 'category'):
+        df = df[df[col].isin(categories)]
+        return df.to_dict('rows')
+    else:
+        return df.to_dict('rows')
 
-    for callback_id, callback in app.callback_map.items():
-        wrapped_func = callback['callback'].__wrapped__
-        inputs = callback['inputs']
-        states = callback['state']
-        events = callback['events']
-
-        str_values = {
-            'callback': wrapped_func.__name__,
-            'output': callback_id,
-            'filename': os.path.split(wrapped_func.__code__.co_filename)[-1],
-            'lineno': wrapped_func.__code__.co_firstlineno,
-            'num_inputs': len(inputs),
-            'num_states': len(states),
-            'num_events': len(events),
-            'inputs': format_regs(inputs),
-            'states': format_regs(states),
-            'events': format_regs(events)
-        }
-
-        output = """                                                                                                                                                                           
-        callback      {callback} @ {filename}:{lineno}                                                                                                                                         
-        Output        {output}                                                                                                                                                                 
-        Inputs  {num_inputs:>4}  {inputs}                                                                                                                                                      
-        States  {num_states:>4}  {states}                                                                                                                                                      
-        Events  {num_events:>4}  {events}                                                                                                                                                      
-        """.format(**str_values)
-
-        output_list.append(output)
-    return "\n".join(output_list)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
