@@ -80,6 +80,7 @@ app.layout = html.Div([
         selected_rows=[],
         page_current= 0,
     ),
+    html.Div(id='datatable-interactivity-container'),
     dcc.Dropdown(
         id='names', 
         value='Είδος Εργασίας', 
@@ -89,7 +90,6 @@ app.layout = html.Div([
     ),
     dcc.Graph(id="pie-chart"),
     # more babis here. just charts
-    html.Div(id='datatable-interactivity-container'),
 ])
 
 
