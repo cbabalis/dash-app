@@ -5,6 +5,7 @@ import dash_core_components as dcc
 import pandas as pd
 from dash.dependencies import Input, Output
 import plotly.express as px
+import numpy as np
 import pdb
 
 
@@ -13,6 +14,18 @@ dfs = px.data.tips()
 # get years column. Then acquire the unique values
 years = [x for x in df][2]
 years_val = df[years].unique()
+
+
+def display_datespan_graph(df):
+    x = df.columns[2]
+    min_df, max_df = int(min(df[x])), int(max(df[x]))
+    counts, bins = np.histogram(df[x], bins=range(min_df, max_df, 4))
+    bins = 0.5 * (bins[:-1] + bins[1:])
+    datespan_fig = px.bar(x=bins, y=counts, labels={'x':'time span', 'y':'count'})
+    return datespan_fig
+
+
+
 
 app = dash.Dash(__name__)
 
@@ -90,6 +103,9 @@ app.layout = html.Div([
     ),
     dcc.Graph(id="pie-chart"),
     # more babis here. just charts
+    html.P("Date span histogram"),
+    dcc.Graph(id="datespan_graph",
+              figure=display_datespan_graph(df)),
 ])
 
 
@@ -164,6 +180,7 @@ def update_graphs(rows, derived_virtual_selected_rows):
         #for column in df.columns if column in dff
     ]
     return all_vs_all
+
 
 
 if __name__ == '__main__':
