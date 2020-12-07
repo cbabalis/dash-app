@@ -94,18 +94,38 @@ app.layout = html.Div([
         page_current= 0,
     ),
     html.Div(id='datatable-interactivity-container'),
-    dcc.Dropdown(
+    # dcc.Dropdown(
+    #     id='names', 
+    #     value='Είδος Εργασίας', 
+    #     options=[{'value': x, 'label': x} 
+    #              for x in ['Είδος Εργασίας', 'Όνομα', 'Χρονιά']],
+    #     clearable=False
+    # ),
+    #dcc.Graph(id="pie-chart"),
+    # more babis here. just charts
+    html.P("Date span histogram"),
+    dcc.Graph(id="datespan_graph",
+              figure=display_datespan_graph(df)),
+        html.Div([
+        html.Div([
+            html.H3('Διαδραστική Πίτα'),
+            dcc.Dropdown(
         id='names', 
         value='Είδος Εργασίας', 
         options=[{'value': x, 'label': x} 
                  for x in ['Είδος Εργασίας', 'Όνομα', 'Χρονιά']],
         clearable=False
     ),
-    dcc.Graph(id="pie-chart"),
-    # more babis here. just charts
-    html.P("Date span histogram"),
-    dcc.Graph(id="datespan_graph",
-              figure=display_datespan_graph(df)),
+            dcc.Graph(id="pie-chart")
+        ], className="six columns"),
+
+        html.Div([
+            html.H3('Κατηγορίες Χρονιών σε Στήλη'),
+            dcc.Graph(id="datespan_graph2",
+              figure=display_datespan_graph(df))
+            #dcc.Graph(id='g2', figure={'data': [{'y': [1, 2, 3]}]})
+        ], className="six columns"),
+    ], className="row")
 ])
 
 
@@ -181,7 +201,10 @@ def update_graphs(rows, derived_virtual_selected_rows):
     ]
     return all_vs_all
 
-
+app.css.append_css({
+    'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'
+})
+app.css.config.serve_locally=False
 
 if __name__ == '__main__':
     app.run_server(debug=True)
