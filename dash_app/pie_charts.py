@@ -25,6 +25,10 @@ def display_datespan_graph(df):
     return datespan_fig
 
 
+def display_datespan_improved(df):
+    x = df.columns[2]
+    improved_fig = px.histogram(df, x=x, nbins=4)
+    return improved_fig
 
 
 app = dash.Dash(__name__)
@@ -103,9 +107,10 @@ app.layout = html.Div([
     # ),
     #dcc.Graph(id="pie-chart"),
     # more babis here. just charts
-    html.P("Date span histogram"),
-    dcc.Graph(id="datespan_graph",
-              figure=display_datespan_graph(df)),
+    html.P("Κατανομή εργασιών στον χρόνο"),
+    dcc.Graph(id="datespan_graph", figure=display_datespan_improved(df)),
+    #dcc.Graph(id="datespan_graph",
+    #          figure=display_datespan_graph(df)),
         html.Div([
         html.Div([
             html.H3('Διαδραστική Πίτα'),
