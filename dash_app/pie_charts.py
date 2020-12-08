@@ -31,6 +31,12 @@ def display_datespan_improved(df):
     return improved_fig
 
 
+def display_line_chart(df):
+    x =df.columns[2]
+    line_fig = px.line(df, x=x, color="Είδος Εργασίας")
+    return line_fig
+
+
 app = dash.Dash(__name__)
 
 app.layout = html.Div([
@@ -130,7 +136,9 @@ app.layout = html.Div([
               figure=display_datespan_graph(df))
             #dcc.Graph(id='g2', figure={'data': [{'y': [1, 2, 3]}]})
         ], className="six columns"),
-    ], className="row")
+    ], className="row"),
+    html.P("Line charts"),
+    dcc.Graph(id="linechart_graph", figure=display_line_chart(df)),
 ])
 
 
