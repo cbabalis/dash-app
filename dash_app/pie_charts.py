@@ -6,6 +6,7 @@ import pandas as pd
 from dash.dependencies import Input, Output
 import plotly.express as px
 import numpy as np
+import plotly.graph_objects as go
 import pdb
 
 
@@ -32,9 +33,57 @@ def display_datespan_improved(df):
 
 
 def display_line_chart(df):
-    x =df.columns[2]
-    line_fig = px.line(df, x=x, color="Είδος Εργασίας")
-    return line_fig
+    df = pd.read_csv('pireas.csv')
+    etos = df.columns[0] #['Winter', 'Spring', 'Summer', 'Fall']
+    x = df[etos].to_list()
+
+    name = df.columns[1]
+    pireas = df[name].to_list()
+
+    name = df.columns[2]
+    thes = df[name].to_list()
+
+    name = df.columns[3]
+    patras = df[name].to_list()
+
+    print('pireas is % and thes is %', pireas, thes)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        name='ΕΚ Πειραιά',
+        x=x, y=pireas,
+        hoverinfo='x+y',
+        mode='lines',
+        line=dict(width=0.5, color='rgb(131, 90, 241)'),
+        stackgroup='one' # define stack group
+    ))
+    fig.add_trace(go.Scatter(
+        name='ΕΚ Θεσσαλονίκη',
+        x=x, y=thes,
+        hoverinfo='x+y',
+        mode='lines',
+        line=dict(width=0.5, color='rgb(111, 231, 219)'),
+        stackgroup='one'
+    ))
+    fig.add_trace(go.Scatter(
+        name='ΕΚ Πάτρα',
+        x=x, y=patras,
+        hoverinfo='x+y',
+        mode='lines',
+        line=dict(width=0.5, color='rgb(184, 247, 212)'),
+        stackgroup='one'
+    ))
+    fig.update_layout(yaxis_range=(0, 3000))
+    return fig
+
+
+def single_line():
+    dff = pd.read_csv('pireas.csv')
+    fig = px.line(dff, x="Ετος", y="ΕΚ Πειραιά")
+    fig.add_scatter(x=dff["Ετος"], y=dff["Thessaloniki"], mode='lines+markers')
+    fig.add_scatter(x=dff["Ετος"], y=dff["ΕΚ Πάτρα"], mode='lines+text')
+    fig.update_layout(yaxis_range=(0, 3000))
+    return fig
 
 
 app = dash.Dash(__name__)
@@ -131,14 +180,29 @@ app.layout = html.Div([
         ], className="six columns"),
 
         html.Div([
-            html.H3('Κατηγορίες Χρονιών σε Στήλη'),
+            html.H3('Κατηγορίες Ετών σε Στήλη'),
             dcc.Graph(id="datespan_graph2",
               figure=display_datespan_graph(df))
             #dcc.Graph(id='g2', figure={'data': [{'y': [1, 2, 3]}]})
         ], className="six columns"),
     ], className="row"),
-    html.P("Line charts"),
-    dcc.Graph(id="linechart_graph", figure=display_line_chart(df)),
+    
+    html.Div([
+        html.Div([
+            html.H3('Line Chart cumulative'),
+            dcc.Graph(id="linechart_graph", figure=display_line_chart(df))
+        ], className="six columns"),
+
+        html.Div([
+            html.H3('Line chart'),
+            dcc.Graph(id="lcg-cumulative",
+              figure=single_line())
+            #dcc.Graph(id='g2', figure={'data': [{'y': [1, 2, 3]}]})
+        ], className="six columns"),
+    ], className="row"),
+    
+    #html.H2("Line charts"),
+    #dcc.Graph(id="linechart_graph", figure=display_line_chart(df)),
 ])
 
 
